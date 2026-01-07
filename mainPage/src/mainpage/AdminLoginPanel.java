@@ -59,7 +59,7 @@ public class AdminLoginPanel extends JFrame implements ActionListener {
         
         JLabel border = new JLabel();
         border.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
-        border.setBounds(70, 60, 360, 220);
+        border.setBounds(70, 60, 360, 230);
         add(border);
         
         // Default admin credentials (for demo)

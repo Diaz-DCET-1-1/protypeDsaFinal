@@ -87,12 +87,10 @@ public class RegistrationPanel extends JFrame implements ActionListener{
 
             try {
                 int voterId = Integer.parseInt(idStr);
-                
-                // Save to database
+              
                 Connection conn = DriverManager.getConnection(
                     "jdbc:mysql://localhost:3306/voting_system", "root", "DCET2-1");
                 
-                // Check if voter already exists
                 PreparedStatement checkStmt = conn.prepareStatement(
                     "SELECT * FROM voters WHERE voter_id = ?");
                 checkStmt.setInt(1, voterId);
@@ -106,7 +104,6 @@ public class RegistrationPanel extends JFrame implements ActionListener{
                     return;
                 }
                 
-                // Insert new voter
                 PreparedStatement insertStmt = conn.prepareStatement(
                     "INSERT INTO voters (voter_id, name) VALUES (?, ?)");
                 insertStmt.setInt(1, voterId);
@@ -120,7 +117,6 @@ public class RegistrationPanel extends JFrame implements ActionListener{
                     "You can now login to cast your vote.",
                     "Success", JOptionPane.INFORMATION_MESSAGE);
                 
-                // Go to Cast Vote (Login) panel
                 new CastVotePanel().setVisible(true);
                 this.dispose();
                 conn.close();
@@ -136,7 +132,6 @@ public class RegistrationPanel extends JFrame implements ActionListener{
             }
             
         } else if (e.getSource() == btnBack) {
-            // Go back to main menu
             new mainPage1().setVisible(true);
             this.dispose();
         }

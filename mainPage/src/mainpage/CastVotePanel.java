@@ -1,214 +1,231 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package mainpage;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
+import java.awt.event.*;
 import java.sql.*;
+import java.util.ArrayList;
 import javax.swing.*;
 
 public class CastVotePanel extends JFrame implements ActionListener {
 
-    private JLabel lbltitle, lblcandname, lblcandid, lblparty;
-    private JTextField txtVoteID, txtVoterCast, txtCandCast;
-    private JButton btnCast, btnBack;
+    private JLabel lblTitle, lblVoteID, lblVoterID, lblCandidates;
+    private JTextField txtVoteID, txtVoterCast;
+    private JButton btnCast, btnBack, btnCandidateDropdown;
+    private JPopupMenu candidateMenu;
+    private ArrayList<JCheckBox> candidateCheckBoxes;
 
     public CastVotePanel() {
         setTitle("E-VOTING SYSTEM - Cast Vote");
-        setSize(500, 450);
+        setSize(550, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(null);
         setLocationRelativeTo(null);
-        
-        lbltitle = new JLabel("CAST VOTE / LOGIN", SwingConstants.CENTER);
-        lbltitle.setBounds(150, 50, 200, 25);
-        lbltitle.setFont(new Font("Arial", Font.BOLD, 16));
-        add(lbltitle);
-        
-        // Instructions
-        JLabel lblInstruction = new JLabel("Enter your Voter ID to login and vote");
-        lblInstruction.setBounds(100, 80, 300, 25);
+
+        lblTitle = new JLabel("CAST VOTE", SwingConstants.CENTER);
+        lblTitle.setBounds(180, 20, 200, 25);
+        lblTitle.setFont(new Font("Arial", Font.BOLD, 16));
+        add(lblTitle);
+
+        JLabel lblInstruction = new JLabel("Enter your Voter ID and select candidates");
+        lblInstruction.setBounds(120, 50, 350, 25);
         add(lblInstruction);
 
-        lblcandname = new JLabel("Vote ID: ");
-        lblcandname.setBounds(100, 120, 100, 25);
-        add(lblcandname);
+        // Vote ID
+        lblVoteID = new JLabel("Vote ID: ");
+        lblVoteID.setBounds(100, 90, 100, 25);
+        add(lblVoteID);
 
         txtVoteID = new JTextField();
-        txtVoteID.setBounds(200, 120, 200, 25);
+        txtVoteID.setBounds(200, 90, 200, 25);
+        txtVoteID.setEditable(false);
         add(txtVoteID);
 
-        lblcandid = new JLabel("Voter's ID: ");
-        lblcandid.setBounds(100, 160, 200, 25);
-        add(lblcandid);
+        // Voter ID
+        lblVoterID = new JLabel("Voter's ID: ");
+        lblVoterID.setBounds(100, 130, 100, 25);
+        add(lblVoterID);
 
         txtVoterCast = new JTextField();
-        txtVoterCast.setBounds(200, 160, 200, 25);
+        txtVoterCast.setBounds(200, 130, 200, 25);
         add(txtVoterCast);
 
-        lblparty = new JLabel("Candidate ID: ");
-        lblparty.setBounds(100, 200, 200, 25);
-        add(lblparty);
+        // Candidate dropdown button
+        lblCandidates = new JLabel("Select Candidate: ");
+        lblCandidates.setBounds(100, 170, 150, 25);
+        add(lblCandidates);
 
-        txtCandCast = new JTextField();
-        txtCandCast.setBounds(200, 200, 200, 25);
-        add(txtCandCast);
+        btnCandidateDropdown = new JButton("Choose Candidates:");
+        btnCandidateDropdown.setBounds(200, 170, 200, 25);
+        btnCandidateDropdown.addActionListener(this);
+        add(btnCandidateDropdown);
 
+        candidateMenu = new JPopupMenu();
+        candidateCheckBoxes = new ArrayList<>();
+        populateCandidatesDropdown();
+
+        // Buttons
         btnCast = new JButton("Cast Vote");
-        btnCast.setFont(new Font("Arial", Font.BOLD, 12));
+        btnCast.setBounds(200, 220, 150, 30);
         btnCast.setBackground(Color.GREEN.darker());
         btnCast.setForeground(Color.WHITE);
-        btnCast.setBounds(235, 250, 120, 30);
-        btnCast.addActionListener(this);   
+        btnCast.addActionListener(this);
         add(btnCast);
-        
+
         btnBack = new JButton("Back to Main");
-        btnBack.setBounds(235, 290, 120, 30);
+        btnBack.setBounds(200, 270, 150, 30);
         btnBack.setBackground(Color.GRAY);
         btnBack.setForeground(Color.WHITE);
         btnBack.addActionListener(this);
         add(btnBack);
+        
+        JLabel regisborder = new JLabel();
+        regisborder.setBorder(BorderFactory.createLineBorder(Color.BLACK, 3));
+        regisborder.setBounds(70, 20, 390,310);
+        add(regisborder);
+        
+        generateVoteID();
+    }
 
-        JLabel border = new JLabel();
-        border.setBorder(BorderFactory.createLineBorder(Color.BLACK, 3));
-        border.setBounds(70, 40, 360, 300);
-        add(border);
+    private void generateVoteID() {
+        try (Connection conn = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/voting_system", "root", "DCET2-1")) {
+            Statement st = conn.createStatement();
+            ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM votes");
+            int voteCount = 0;
+            if (rs.next()) voteCount = rs.getInt(1);
+            txtVoteID.setText(String.format("%02d", voteCount + 1));
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Error generating Vote ID: " + ex.getMessage(),
+                    "Database Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void populateCandidatesDropdown() {
+        candidateMenu.removeAll();
+        candidateCheckBoxes.clear();
+
+        try (Connection conn = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/voting_system", "root", "DCET2-1")) {
+            Statement st = conn.createStatement();
+            ResultSet rs = st.executeQuery("SELECT candidate_id, name, party FROM candidates");
+            while (rs.next()) {
+                String id = rs.getString("candidate_id");
+                String name = rs.getString("name");
+                String party = rs.getString("party");
+
+                JCheckBox cb = new JCheckBox(id + " | " + name + " | " + party);
+                cb.setBackground(Color.WHITE);
+                candidateMenu.add(cb);
+                candidateCheckBoxes.add(cb);
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Error loading candidates: " + ex.getMessage(),
+                    "Database Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == btnCast) {
-            String voteId = txtVoteID.getText().trim();
-            String voterId = txtVoterCast.getText().trim();
-            String candId = txtCandCast.getText().trim();
-
-            if (voteId.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Please enter Vote ID", 
-                    "Input Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            if (voterId.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Please enter Voter ID", 
-                    "Input Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            if (candId.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Please enter Candidate ID", 
-                    "Input Error", JOptionPane.ERROR_MESSAGE);
+        if (e.getSource() == btnCandidateDropdown) {
+            candidateMenu.show(btnCandidateDropdown, 0, btnCandidateDropdown.getHeight());
+        } else if (e.getSource() == btnCast) {
+            String voterIdStr = txtVoterCast.getText().trim();
+            if (voterIdStr.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please enter your Voter ID",
+                        "Input Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
+            int voterIdNum;
             try {
-                int voteIdNum = Integer.parseInt(voteId);
-                int voterIdNum = Integer.parseInt(voterId);
-                int candIdNum = Integer.parseInt(candId);
-                
-                // First check if voter exists and hasn't voted
-                Connection conn = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/voting_system", "root", "DCET2-1");
-                
-                // Check voter
-                PreparedStatement checkVoter = conn.prepareStatement(
-                    "SELECT name, has_voted FROM voters WHERE voter_id = ?");
-                checkVoter.setInt(1, voterIdNum);
-                ResultSet rs = checkVoter.executeQuery();
-                
-                if (!rs.next()) {
-                    JOptionPane.showMessageDialog(this, 
-                        "Voter ID " + voterIdNum + " not found!\nPlease register first.", 
-                        "Voter Not Found", JOptionPane.ERROR_MESSAGE);
-                    conn.close();
-                    return;
-                }
-                
-                String voterName = rs.getString("name");
-                boolean hasVoted = rs.getBoolean("has_voted");
-                
-                if (hasVoted) {
-                    JOptionPane.showMessageDialog(this, 
-                        "Welcome back, " + voterName + "!\n\n" +
-                        "You have already voted.\n" +
-                        "Thank you for participating!",
-                        "Already Voted",
-                        JOptionPane.INFORMATION_MESSAGE);
-                    conn.close();
-                    
-                    // Show voting results after message
-                    new ResultsPanel().setVisible(true);
-                    this.dispose();
-                    return;
-                }
-                
-                // Check candidate
-                PreparedStatement checkCand = conn.prepareStatement(
-                    "SELECT name FROM candidates WHERE candidate_id = ?");
-                checkCand.setInt(1, candIdNum);
-                ResultSet rs2 = checkCand.executeQuery();
-                
-                if (!rs2.next()) {
-                    JOptionPane.showMessageDialog(this, 
-                        "Candidate ID " + candIdNum + " not found!", 
-                        "Candidate Not Found", JOptionPane.ERROR_MESSAGE);
-                    conn.close();
-                    return;
-                }
-                
-                String candidateName = rs2.getString("name");
-                
-                // Cast vote
-                PreparedStatement insertVote = conn.prepareStatement(
-                    "INSERT INTO votes (voter_id, candidate_id) VALUES (?, ?)");
-                insertVote.setInt(1, voterIdNum);
-                insertVote.setInt(2, candIdNum);
-                insertVote.executeUpdate();
-                
-                // Update voter
-                PreparedStatement updateVoter = conn.prepareStatement(
-                    "UPDATE voters SET has_voted = TRUE WHERE voter_id = ?");
-                updateVoter.setInt(1, voterIdNum);
-                updateVoter.executeUpdate();
-                
-                // Update candidate
-                PreparedStatement updateCand = conn.prepareStatement(
-                    "UPDATE candidates SET vote_count = vote_count + 1 WHERE candidate_id = ?");
-                updateCand.setInt(1, candIdNum);
-                updateCand.executeUpdate();
-                
-                JOptionPane.showMessageDialog(this, 
-                    "Vote Cast Successfully!\n\n" +
-                    "Voter: " + voterName + " (ID: " + voterIdNum + ")\n" +
-                    "Candidate: " + candidateName + " (ID: " + candIdNum + ")\n\n" +
-                    "Thank you for voting!",
-                    "Success", JOptionPane.INFORMATION_MESSAGE);
-                
-                // Clear fields
-                txtVoteID.setText("");
-                txtVoterCast.setText("");
-                txtCandCast.setText("");
-                
-                // Show results
-                new ResultsPanel().setVisible(true);
-                this.dispose();
-                
-                conn.close();
-                
+                voterIdNum = Integer.parseInt(voterIdStr);
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, 
-                    "All IDs must be numbers!", 
-                    "Input Error", JOptionPane.ERROR_MESSAGE);
-            } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this,
-                    "Error: " + ex.getMessage(),
-                    "Database Error",
-                    JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Voter ID must be a number!",
+                        "Input Error", JOptionPane.ERROR_MESSAGE);
+                return;
             }
-            
+
+            ArrayList<String> selectedCandidates = new ArrayList<>();
+            ArrayList<Integer> selectedCandidateIDs = new ArrayList<>();
+            for (JCheckBox cb : candidateCheckBoxes) {
+                if (cb.isSelected()) {
+                    selectedCandidates.add(cb.getText());
+                    int candId = Integer.parseInt(cb.getText().split("\\|")[0].trim());
+                    selectedCandidateIDs.add(candId);
+                }
+            }
+
+            if (selectedCandidates.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Select at least one candidate!",
+                        "Input Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            try (Connection conn = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/voting_system", "root", "DCET2-1")) {
+
+                // Check voter existence
+                PreparedStatement psVoter = conn.prepareStatement(
+                        "SELECT name, has_voted FROM voters WHERE voter_id = ?");
+                psVoter.setInt(1, voterIdNum);
+                ResultSet rsVoter = psVoter.executeQuery();
+
+                if (!rsVoter.next()) {
+                    JOptionPane.showMessageDialog(this,
+                            "Voter ID " + voterIdNum + " not found! Please register first.",
+                            "Voter Not Found", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                boolean hasVoted = rsVoter.getBoolean("has_voted");
+                if (hasVoted) {
+                    JOptionPane.showMessageDialog(this,
+                            "You have already voted. Multiple voting is not allowed.",
+                            "Already Voted", JOptionPane.INFORMATION_MESSAGE);
+                    return;
+                }
+
+                // Insert votes and update candidates
+                for (int candId : selectedCandidateIDs) {
+                    PreparedStatement psInsert = conn.prepareStatement(
+                            "INSERT INTO votes (voter_id, candidate_id) VALUES (?, ?)");
+                    psInsert.setInt(1, voterIdNum);
+                    psInsert.setInt(2, candId);
+                    psInsert.executeUpdate();
+
+                    PreparedStatement psUpdate = conn.prepareStatement(
+                            "UPDATE candidates SET vote_count = vote_count + 1 WHERE candidate_id = ?");
+                    psUpdate.setInt(1, candId);
+                    psUpdate.executeUpdate();
+                }
+
+                // Update voter
+                PreparedStatement psVoted = conn.prepareStatement(
+                        "UPDATE voters SET has_voted = TRUE WHERE voter_id = ?");
+                psVoted.setInt(1, voterIdNum);
+                psVoted.executeUpdate();
+
+                // Show voted candidates
+                StringBuilder votedList = new StringBuilder();
+                for (String s : selectedCandidates) votedList.append(s).append("\n");
+
+                JOptionPane.showMessageDialog(this,
+                        "Vote Cast Successfully!\nYou voted for:\n" + votedList.toString(),
+                        "Success", JOptionPane.INFORMATION_MESSAGE);
+
+                // Reset
+                generateVoteID();
+                txtVoterCast.setText("");
+                for (JCheckBox cb : candidateCheckBoxes) cb.setSelected(false);
+
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, "Database Error: " + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE);
+            }
+
         } else if (e.getSource() == btnBack) {
-            // Go back to main menu
             new mainPage1().setVisible(true);
             this.dispose();
         }

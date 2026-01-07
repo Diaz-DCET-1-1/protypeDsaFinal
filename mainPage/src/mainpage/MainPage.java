@@ -6,10 +6,6 @@ package mainpage;
 
 public class MainPage {
     public static void main(String[] args) {
-        // Test database first
-        DatabaseTest.testConnection();
-        
-        // Show ONLY main page
         new mainPage1().setVisible(true);
     }
 }

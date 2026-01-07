@@ -12,11 +12,11 @@ import javax.swing.SwingConstants;
 
 public class mainPage1 extends JFrame implements ActionListener {
     private JLabel TitleLabel, DescLabel1, DescLabel2;
-    private JButton RegBtn, AlrBtn, AdminBtn, ResultsBtn;
+    private JButton RegBtn, AlrBtn, AdminBtn, ResultsBtn, ExitBtn;
     
     public mainPage1() {
         setTitle("E-Voting System - Main Menu");
-        setSize(600, 600); // Increased height
+        setSize(600, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(null);
         setLocationRelativeTo(null);
@@ -47,35 +47,38 @@ public class mainPage1 extends JFrame implements ActionListener {
         RegBtn.addActionListener(this);
         add(RegBtn);
         
-        AlrBtn = new JButton("Already Have an Account");
+        AlrBtn = new JButton("Cast Vote");
         AlrBtn.setBounds(180, 260, 200, 40);
         AlrBtn.setBackground(Color.GRAY);
         AlrBtn.setForeground(Color.WHITE);
         AlrBtn.setFont(new Font("Arial", Font.BOLD, 14));
         AlrBtn.addActionListener(this);
         add(AlrBtn);
-        
+ 
+        AdminBtn = new JButton("Admin Login");
+        AdminBtn.setBounds(180, 320, 200, 40);
+        AdminBtn.setBackground(Color.GRAY);
+        AdminBtn.setForeground(Color.WHITE);
+        AdminBtn.setFont(new Font("Arial", Font.BOLD, 14));
+        AdminBtn.addActionListener(this);
+        add(AdminBtn);
+    
         ResultsBtn = new JButton("View Election Results");
-        ResultsBtn.setBounds(180, 320, 200, 40);
-        ResultsBtn.setBackground(new Color(0, 100, 0)); // Green
+        ResultsBtn.setBounds(180, 380, 200, 40);
+        ResultsBtn.setBackground(Color.GRAY);
         ResultsBtn.setForeground(Color.WHITE);
         ResultsBtn.setFont(new Font("Arial", Font.BOLD, 14));
         ResultsBtn.addActionListener(this);
         add(ResultsBtn);
         
-        AdminBtn = new JButton("Admin Login");
-        AdminBtn.setBounds(180, 380, 200, 40);
-        AdminBtn.setBackground(new Color(139, 0, 0)); // Dark red
-        AdminBtn.setForeground(Color.WHITE);
-        AdminBtn.setFont(new Font("Arial", Font.BOLD, 14));
-        AdminBtn.addActionListener(this);
-        add(AdminBtn);
-        
-        // Database status
-        JLabel dbStatus = new JLabel("Database: Connected ✓", SwingConstants.CENTER);
-        dbStatus.setBounds(30, 450, 500, 30);
-        dbStatus.setForeground(Color.GREEN.darker());
-        add(dbStatus);
+      
+        ExitBtn = new JButton("EXIT");
+        ExitBtn.setBounds(180, 440, 200, 40);
+        ExitBtn.setBackground(Color.GRAY); 
+        ExitBtn.setForeground(Color.WHITE);
+        ExitBtn.setFont(new Font("Arial", Font.BOLD, 14));
+        ExitBtn.addActionListener(this);
+        add(ExitBtn);
     }
 
     @Override
@@ -83,15 +86,21 @@ public class mainPage1 extends JFrame implements ActionListener {
         if (e.getSource() == RegBtn) {
             new RegistrationPanel().setVisible(true);
             this.dispose();
-        } else if (e.getSource() == AlrBtn) {
+        } 
+        else if (e.getSource() == AlrBtn) {
             new CastVotePanel().setVisible(true);
             this.dispose();
-        } else if (e.getSource() == ResultsBtn) {
-            new ResultsPanel().setVisible(true);
-            this.dispose();
-        } else if (e.getSource() == AdminBtn) {
+        } 
+        else if (e.getSource() == AdminBtn) {
             new AdminLoginPanel().setVisible(true);
             this.dispose();
+        } 
+        else if (e.getSource() == ResultsBtn) {
+            new ResultsPanel().setVisible(true);
+            this.dispose();
+        }
+        else if (e.getSource() == ExitBtn) {
+            System.exit(0);
         }
     }
 }

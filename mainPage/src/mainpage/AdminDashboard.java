@@ -25,7 +25,7 @@ public class AdminDashboard extends JFrame implements ActionListener {
         setLocationRelativeTo(null);
         
         // Welcome message
-        lblWelcome = new JLabel("Admin Dashboard - Welcome, " + adminName + "!");
+        lblWelcome = new JLabel("Admin Dashboard - " + adminName + "!");
         lblWelcome.setFont(new Font("Arial", Font.BOLD, 18));
         lblWelcome.setBounds(50, 30, 500, 40);
         add(lblWelcome);
@@ -38,7 +38,7 @@ public class AdminDashboard extends JFrame implements ActionListener {
         // Buttons
         btnAddCandidate = new JButton("Add Candidate");
         btnAddCandidate.setBounds(200, 120, 200, 40);
-        btnAddCandidate.setBackground(new Color(0, 100, 0)); // Green
+        btnAddCandidate.setBackground(Color.GRAY);
         btnAddCandidate.setForeground(Color.WHITE);
         btnAddCandidate.setFont(new Font("Arial", Font.BOLD, 14));
         btnAddCandidate.addActionListener(this);
@@ -46,7 +46,7 @@ public class AdminDashboard extends JFrame implements ActionListener {
         
         btnViewData = new JButton("View Database");
         btnViewData.setBounds(200, 180, 200, 40);
-        btnViewData.setBackground(Color.BLUE);
+        btnViewData.setBackground(Color.GRAY);
         btnViewData.setForeground(Color.WHITE);
         btnViewData.setFont(new Font("Arial", Font.BOLD, 14));
         btnViewData.addActionListener(this);
@@ -54,7 +54,7 @@ public class AdminDashboard extends JFrame implements ActionListener {
         
         btnManageVoters = new JButton("Manage Voters");
         btnManageVoters.setBounds(200, 240, 200, 40);
-        btnManageVoters.setBackground(new Color(128, 0, 128)); // Purple
+        btnManageVoters.setBackground(Color.GRAY);
         btnManageVoters.setForeground(Color.WHITE);
         btnManageVoters.setFont(new Font("Arial", Font.BOLD, 14));
         btnManageVoters.addActionListener(this);
@@ -62,7 +62,7 @@ public class AdminDashboard extends JFrame implements ActionListener {
         
         btnLogout = new JButton("Logout");
         btnLogout.setBounds(200, 300, 200, 40);
-        btnLogout.setBackground(Color.RED);
+        btnLogout.setBackground(Color.GRAY);
         btnLogout.setForeground(Color.WHITE);
         btnLogout.setFont(new Font("Arial", Font.BOLD, 14));
         btnLogout.addActionListener(this);

@@ -17,7 +17,7 @@ public class DatabaseTest {
             Connection conn = DriverManager.getConnection(
                 "jdbc:mysql://localhost:3306/voting_system", 
                 "root", 
-                "DCET2-1"  // YOUR PASSWORD HERE
+                "DCET2-1"  //
             );
             
             JOptionPane.showMessageDialog(null,
